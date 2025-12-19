@@ -7,7 +7,7 @@ import Chat from './chatComponents/Chat';
 import Footer from './appComponent/Footer';
 
 function App() {
-  const isLoggedIn = false;
+  const isLoggedIn = true;
 
   return (
     <div className='min-h-screen flex flex-col'>
