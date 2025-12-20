@@ -1,21 +1,26 @@
-import { useState } from 'react';
 
-import './App.css';
-import Header from './appComponent/header';
-import Home from './appComponent/Home';
+import React from 'react';
 import Chat from './chatComponents/Chat';
+import Home from './appComponent/Home';
+import Header from './appComponent/Header';
 import Footer from './appComponent/Footer';
 
 function App() {
   const isLoggedIn = true;
 
   return (
-    <div className='min-h-screen flex flex-col'>
-      <Header />
-      <div className=' flex flex-1'>{isLoggedIn ? <Chat /> : <Home />}</div>
-      <div className='flex border-t'>
-        <Footer />
+    <div className="min-h-screen flex flex-col">
+      {!isLoggedIn && <Header />}
+
+      <div className="flex flex-1 overflow-hidden">
+        {isLoggedIn ? <Chat /> : <Home />}
       </div>
+
+      {!isLoggedIn && (
+        <div className="border-t">
+          <Footer />
+        </div>
+      )}
     </div>
   );
 }
