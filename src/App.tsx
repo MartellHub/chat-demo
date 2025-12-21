@@ -1,9 +1,12 @@
 
-import React from 'react';
+// import React from 'react';
+import './App.css';
+
 import Chat from './chatComponents/Chat';
 import Home from './appComponent/Home';
 import Header from './appComponent/Header';
 import Footer from './appComponent/Footer';
+
 
 function App() {
   const isLoggedIn = true;

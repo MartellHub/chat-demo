@@ -1,19 +1,15 @@
 import { useState } from "react";
+import Channels from "./Channels";
+import FriendsList from "./FriendsList";
 
 function Chat() {
-  const [selectedChannel, setSelectedChannel] = useState("general");
   const [message, setMessage] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState("general");
   const [messages, setMessages] = useState([
     { id: 1, user: "Alex", text: "Welcome to #general" },
     { id: 2, user: "Bot", text: "Be nice and have fun!" },
   ]);
 
-  // Select channel
-  const handleChannelSelect = (channel) => {
-    setSelectedChannel(channel);
-  };
-
-  // Send message
   const handleSendMessage = () => {
     if (!message.trim()) return;
 
@@ -21,35 +17,19 @@ function Chat() {
       ...prev,
       { id: Date.now(), user: "You", text: message },
     ]);
-    setMessage(""); 
+    setMessage("");
   };
 
   return (
-    <div className="h-screen  w-full bg-[#313338] text-white flex">
-      
-      
-
+    <div className="h-screen w-full bg-[#313338] text-white flex">
       {/* Channels */}
-      <aside className="hidden sm:flex w-60 bg-[#2b2d31] flex-col">
-        <div className="p-4 font-bold border-b border-black/30">
-          Server Name
-        </div>
-
-        {["general", "random", "help"].map((channel) => (
-          <button
-            key={channel}
-            onClick={() => handleChannelSelect(channel)}
-            className={`text-left px-4 py-2 mx-2 rounded hover:bg-[#3f4147]
-              ${selectedChannel === channel ? "bg-[#3f4147]" : ""}`}
-          >
-            # {channel}
-          </button>
-        ))}
-      </aside>
+      <Channels
+        selectedChannel={selectedChannel}
+        setSelectedChannel={setSelectedChannel}
+      />
 
       {/* Chat area */}
       <main className="flex-1 flex flex-col">
-        
         {/* Header */}
         <div className="h-14 flex items-center px-4 border-b border-black/30">
           <span className="font-semibold"># {selectedChannel}</span>
@@ -83,14 +63,10 @@ function Chat() {
             </button>
           </div>
         </div>
-
       </main>
-      {/* Servers (hidden on mobile) */}
-      <aside className="hidden md:flex w-[72px] bg-[#1e1f22] flex-col items-center py-4 gap-4">
-        <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center font-bold">
-          D
-        </div>
-      </aside>
+
+      {/* Friends */}
+       <FriendsList />
     </div>
   );
 }
