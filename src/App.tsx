@@ -9,7 +9,7 @@ import Footer from './appComponent/Footer';
 
 
 function App() {
-  const isLoggedIn = true;
+  const isLoggedIn = false;
 
   return (
     <div className="min-h-screen flex flex-col">
