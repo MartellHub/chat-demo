@@ -2,23 +2,40 @@ import { useState } from "react";
 import Channels from "./Channels";
 import FriendsList from "./FriendsList";
 
+type Message = {
+  id: number;
+  user: string;
+  text: string;
+};
+
 function Chat() {
   const [message, setMessage] = useState("");
   const [selectedChannel, setSelectedChannel] = useState("general");
-  const [messages, setMessages] = useState([
-    { id: 1, user: "Alex", text: "Welcome to #general" },
-    { id: 2, user: "Bot", text: "Be nice and have fun!" },
-  ]);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+
+  const [messagesByChannel, setMessagesByChannel] = useState<
+    Record<string, Message[]>
+  >({
+    general: [{ id: 1, user: "Alex", text: "Welcome to #general" }],
+    random: [],
+    support: [],
+  });
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
 
-    setMessages((prev) => [
+    setMessagesByChannel((prev) => ({
       ...prev,
-      { id: Date.now(), user: "You", text: message },
-    ]);
+      [selectedChannel]: [
+        ...(prev[selectedChannel] || []),
+        { id: Date.now(), user: "You", text: message },
+      ],
+    }));
+
     setMessage("");
   };
+
+  const messages = messagesByChannel[selectedChannel] || [];
 
   return (
     <div className="h-screen w-full bg-[#313338] text-white flex">
@@ -66,7 +83,10 @@ function Chat() {
       </main>
 
       {/* Friends */}
-       <FriendsList />
+      <FriendsList
+        selectedUser={selectedUser}
+        setSelectedUser={setSelectedUser}
+      />
     </div>
   );
 }

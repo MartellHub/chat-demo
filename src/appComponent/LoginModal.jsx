@@ -5,9 +5,8 @@ import GoogleIcon from '../img/google-login-icon.png';
 import FacebookIcon from '../img/facebook-login-icon.png';
 import DiscordIcon from '../img/discord-login-icon.png';
 
-export default function LoginModal({ isOpen, onClose }) {
-
-  const userDemo = { email: 'yevgenil' , password:123456};
+export default function LoginModal({ isOpen, onClose, onSuccess }) {
+  const userDemo = { email: 'yevgenil', password: 123456 };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -24,7 +23,7 @@ export default function LoginModal({ isOpen, onClose }) {
       console.log('Login successful');
       setEmail('');
       setPassword('');
-      onClose();
+      onSuccess();
     } else {
       console.log('Invalid email or password');
     }
@@ -44,7 +43,7 @@ export default function LoginModal({ isOpen, onClose }) {
       onClick={onClose}
     >
       <div
-        className='bg-[#1e1f22] text-white w-[380px] rounded-xl p-6 shadow-xl'
+        className='bg-[#1e1f22] text-white w-95 rounded-xl p-6 shadow-xl'
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className='text-xl font-semibold text-center mb-4'>Log in</h2>

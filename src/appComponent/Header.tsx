@@ -1,7 +1,8 @@
 import React ,{ useState }from 'react';
 import UserImg from '../img/user-img.png';
 
-import LoginModal from './LoginModal';
+import LoginModal from "./LoginModal";
+
 
 function header() {
   const userName = 'John Doe';

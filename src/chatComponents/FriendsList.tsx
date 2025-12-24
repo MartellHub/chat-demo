@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import AddFriend from '../img/add-friend.png';
 
-function FriendsList() {
+type UserProps = {
+  selectedUser: string;
+  setSelectedUser: (user: string) => void;
+};
+
+function FriendsList({selectedUser, setSelectedUser}: UserProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [friends, setFriends] = useState(['Alice', 'Bob', 'Charlie', 'Diana']);
   const [newFriend, setNewFriend] = useState('');
