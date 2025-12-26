@@ -5,7 +5,6 @@ import LoginModal from "./LoginModal";
 
 
 function header() {
-  const userName = 'John Doe';
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -13,15 +12,16 @@ function header() {
   };
   return (
     <div>
-      <header className=' sticky flex justify-between border-b p-4 bg-gray-500/30'>
-        <div className='flex gap-3 items-center'>
+      <header className=' sticky flex justify-between border-b py-4 px-8 bg-gray-500/30 items-center'>
+        <div className='flex'>
           <img
             src={UserImg}
             alt='Logo'
             className='h-10'
           />
-          <div>{userName}</div>
         </div>
+
+        <div className='text-2xl font-bold'>Company Name</div>
         <button
           className='hover:cursor-pointer border rounded-2xl px-3 hover:shadow-md'
           onClick={openModal}
