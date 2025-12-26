@@ -8,9 +8,9 @@ import Chat from './chatComponents/Chat'
 
 function App() {
   return (
-    <div>
+    <div className='flex flex-col w-screen h-screen'>
       <Header />
-      <div >
+      <div className='flex flex-1'>
         <Home />
       </div>
       <Footer />

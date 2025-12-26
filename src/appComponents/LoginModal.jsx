@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithGoogle } from '../../server/GoogleAuth';
 
 //icons
 import GoogleIcon from '../img/google-login-icon.png';
@@ -107,7 +108,19 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
         {/* Socials (smaller) */}
         <div className='flex justify-center gap-3'>
           <button
-            onClick={() => console.log('Google login')}
+            onClick={async () => {
+                   try {
+      const user = await signInWithGoogle();
+      console.log('Google user:', user);
+
+      onSuccess(user);
+      navigate('/Chat');
+      onClose();
+    } catch (err) {
+      console.error('Google login failed', err);
+    }
+  }
+                  }
             className='p-2 rounded bg-white hover:bg-gray-200 transition'
           >
             <img
