@@ -2,7 +2,7 @@
 
 function Footer() {
   return (
-    <div>Footer</div>
+    <div className="flex w-full justify-center">Chat-app | By M4rtell</div>
   )
 }
 

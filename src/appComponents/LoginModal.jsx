@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 //icons
 import GoogleIcon from '../img/google-login-icon.png';
@@ -9,6 +10,8 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
   const userDemo = { email: 'yevgenil', password: 123456 };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleEsc = (e) => e.key === 'Escape' && onClose();
@@ -21,6 +24,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
   const handleLogin = () => {
     if (email === userDemo.email && password == userDemo.password) {
       console.log('Login successful');
+      navigate('/Chat');
       setEmail('');
       setPassword('');
       onSuccess();
