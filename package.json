@@ -16,6 +16,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.11.0",
+    "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.1",
     "tailwindcss": "^4.1.18"
   },
@@ -32,5 +33,18 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MartellHub/chat-demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MartellHub/chat-demo/issues"
+  },
+  "homepage": "https://github.com/MartellHub/chat-demo#readme"
 }
