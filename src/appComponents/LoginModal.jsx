@@ -1,50 +1,66 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/firebase';
 import { signInWithGoogle } from '../../firebase/GoogleAuth';
 
-//icons
+import SignUpModal from './SingUpModal';
+
+// icons
 import GoogleIcon from '../img/google-login-icon.png';
 import FacebookIcon from '../img/facebook-login-icon.png';
 import DiscordIcon from '../img/discord-login-icon.png';
 
-export default function LoginModal({ isOpen, onClose }) {
-  const userDemo = { email: 'yevgenil', password: '123456' };
+export default function LoginModal({ isOpen, onClose, onOpenSignup }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
   const navigate = useNavigate();
 
-  const handleLogin = useCallback(() => {
-    if (email === userDemo.email && password == userDemo.password) {
-      console.log('Login successful');
-      navigate('/Chat');
+  // ---- Login ----
+  const handleLogin = useCallback(async () => {
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
+
+    try {
+      setError('');
+      await signInWithEmailAndPassword(auth, email, password);
+
+      navigate('/chat');
       setEmail('');
       setPassword('');
       onClose();
-    } else {
-      console.log('Invalid email or password');
+    } catch {
+      setError('Invalid email or password');
     }
   }, [email, password, navigate, onClose]);
 
+  // ---- Keyboard shortcuts ----
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
-      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') handleLogin();
+      if (e.key === 'Enter') handleLogin();
     };
 
     document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose, handleLogin]);
 
   if (!isOpen) return null;
 
-  const handelForgotPassword = () => {
-    console.log('Navigate to forgot password page');
+  const handleForgotPassword = () => {
+    console.log('Navigate to Forgot Password modal');
   };
 
   const handleRegister = () => {
-    console.log('Navigate to registration page');
+    setIsSignUpModalOpen(true);
   };
 
   return (
@@ -53,7 +69,7 @@ export default function LoginModal({ isOpen, onClose }) {
       onClick={onClose}
     >
       <div
-        className='bg-[#1e1f22] text-white w-95 rounded-xl p-6 shadow-xl'
+        className='bg-[#1e1f22] text-white w-96 rounded-xl p-6 shadow-xl'
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className='text-xl font-semibold text-center mb-4'>Log in</h2>
@@ -82,26 +98,30 @@ export default function LoginModal({ isOpen, onClose }) {
           >
             Login
           </button>
+
+          {error && <p className='text-red-500 text-sm'>{error}</p>}
         </div>
 
-        {/* forgot password/register */}
-        <div>
-          <p className='text-xs text-gray-400 text-center'>
-            <span
-              className='hover:text-white cursor-pointer'
-              onClick={handelForgotPassword}
-            >
-              Forgot your password?
-            </span>{' '}
-            |{' '}
-            <span
-              className='hover:text-white cursor-pointer'
-              onClick={handleRegister}
-            >
-              Register
-            </span>
-          </p>
-        </div>
+        {/* Forgot / Register */}
+        <p className='text-xs text-gray-400 text-center'>
+          <span
+            className='hover:text-white cursor-pointer'
+            onClick={handleForgotPassword}
+          >
+            Forgot your password?
+          </span>{' '}
+          |{' '}
+          <span
+            className='hover:text-white cursor-pointer'
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+              onOpenSignup();
+            }}
+          >
+            Register
+          </span>
+        </p>
 
         {/* Divider */}
         <div className='flex items-center gap-2 text-xs text-gray-400 my-3'>
@@ -110,18 +130,15 @@ export default function LoginModal({ isOpen, onClose }) {
           <div className='flex-1 h-px bg-gray-700' />
         </div>
 
-        {/* Socials (smaller) */}
+        {/* Social logins */}
         <div className='flex justify-center gap-3'>
           <button
-            onClick={() => {
-              signInWithGoogle()
-                .then((user) => {
-                  navigate('/Chat');
-                  onClose();
-                })
-                .catch(console.error);
+            onClick={async () => {
+              await signInWithGoogle();
+              navigate('/chat');
+              onClose();
             }}
-            className='p-2 rounded bg-white hover:bg-gray-200 transition'
+            className='p-2 rounded bg-white hover:bg-gray-200'
           >
             <img
               src={GoogleIcon}
@@ -130,8 +147,8 @@ export default function LoginModal({ isOpen, onClose }) {
           </button>
 
           <button
+            className='p-2 rounded bg-[#1877f2]'
             onClick={() => console.log('Facebook login')}
-            className='p-2 rounded bg-[#1877f2] hover:opacity-90 transition'
           >
             <img
               src={FacebookIcon}
@@ -140,8 +157,8 @@ export default function LoginModal({ isOpen, onClose }) {
           </button>
 
           <button
+            className='p-2 rounded bg-[#5865F2]'
             onClick={() => console.log('Discord login')}
-            className='p-2 rounded bg-[#5865F2] hover:opacity-90 transition'
           >
             <img
               src={DiscordIcon}

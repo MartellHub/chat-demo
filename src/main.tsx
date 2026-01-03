@@ -13,10 +13,9 @@ const router = createBrowserRouter([
   {
     path: '/Chat',
     element: <Chat />
-  }
-
-
+  },
 ]);
+
 createRoot(document.getElementById('root')!).render(
   <AuthProvider>
     <RouterProvider router = {router}/> 

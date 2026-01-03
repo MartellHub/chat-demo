@@ -4,3 +4,7 @@
 ::-webkit-scrollbar {
   width: 0;
 }
+
+.input {
+  @apply w-full px-3 py-2 rounded bg-[#1e1f22] text-white outline-none;
+}
