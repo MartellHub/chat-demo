@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import addGroupImg from '../img/add-group.png';
 import AddRoomModal from './AddRoomModal';
-import UserWindow from './UserWindow';
+import UserWindow from './user/UserWindow';
 
 type ChannelsProps = {
   selectedChannel: string;
@@ -17,8 +17,6 @@ function Channels({ selectedChannel, setSelectedChannel }: ChannelsProps) {
     'help',
     'announcements',
   ]);
-
-  
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newGroup, setNewGroup] = useState('');
