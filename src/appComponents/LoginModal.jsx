@@ -7,7 +7,7 @@ import GoogleIcon from '../img/google-login-icon.png';
 import FacebookIcon from '../img/facebook-login-icon.png';
 import DiscordIcon from '../img/discord-login-icon.png';
 
-export default function LoginModal({ isOpen, onClose, onSuccess }) {
+export default function LoginModal({ isOpen, onClose }) {
   const userDemo = { email: 'yevgenil', password: '123456' };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -104,7 +104,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
         </div>
 
         {/* Divider */}
-        <div className='flex items-center gap-2 text-xs text-gray-400 mb-3'>
+        <div className='flex items-center gap-2 text-xs text-gray-400 my-3'>
           <div className='flex-1 h-px bg-gray-700' />
           OR
           <div className='flex-1 h-px bg-gray-700' />

@@ -2,8 +2,12 @@
 
 function Footer() {
   return (
-    <div className="flex w-full justify-center border-t-2 p-2 sticky">Chat-app | By M4rtell</div>
-  )
+    <div className='flex w-full justify-center gap-2 p-2 border-t-2 sticky'>
+      <div>Chat-app</div> 
+      <div className="border-r h-full"></div>
+      <div>By M4rtell</div>
+    </div>
+  );
 }
 
-export default Footer
+export default Footer;
