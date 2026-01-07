@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AddFriend from "../img/add-friend.png";
+import BinImg from "../img/bin.png";
 
 import {
   collection,
@@ -8,6 +9,8 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebase";
 
@@ -16,59 +19,78 @@ type UserProps = {
   setSelectedUser: (user: string) => void;
 };
 
+type Friend = {
+  id: string;
+  name: string;
+};
+
 function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [friends, setFriends] = useState<string[]>([]);
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [newFriend, setNewFriend] = useState("");
-  const [editingFriend, setEditingFriend] = useState<string | null>(null);
 
-  const sortAlphabetically = (list: string[]) =>
-    [...list].sort((a, b) => a.localeCompare(b));
+  /* 🔥 AUTH + FIRESTORE LISTENER */
+  useEffect(() => {
+    const unsubAuth = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        setFriends([]);
+        return;
+      }
 
-  const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
+      const friendsRef = collection(db, "users", user.uid, "friends");
+      const q = query(friendsRef, orderBy("name"));
+
+      const unsubFriends = onSnapshot(q, (snapshot) => {
+        const list = snapshot.docs.map((d) => ({
+          id: d.id,
+          name: d.data().name,
+        }));
+        setFriends(list);
+      });
+
+      return () => unsubFriends();
+    });
+
+    return () => unsubAuth();
+  }, []);
 
   const openAddModal = () => {
-    setEditingFriend(null);
     setNewFriend("");
     setIsModalOpen(true);
   };
 
   const handleAddFriend = async () => {
-    if (!auth.currentUser) return;
+    const user = auth.currentUser;
+    if (!user) return;
 
     const name = newFriend.trim();
     if (!name) return;
 
-    const friendsRef = collection(db, "users", auth.currentUser.uid, "friends");
+    if (friends.some((f) => f.name.toLowerCase() === name.toLowerCase())) {
+      return;
+    }
 
-    await addDoc(friendsRef, {
+    await addDoc(collection(db, "users", user.uid, "friends"), {
       name,
       createdAt: serverTimestamp(),
     });
 
     setSelectedUser(name);
-    setNewFriend("");
     setIsModalOpen(false);
   };
 
-  useEffect(() => {
-  console.log("Current user:", auth.currentUser);
-}, []);
+  const handleDeleteFriend = async (friendId: string) => {
+    const user = auth.currentUser;
+    if (!user) return;
 
-  useEffect(() => {
-    if (!auth.currentUser) return;
+    await deleteDoc(
+      doc(db, "users", user.uid, "friends", friendId)
+    );
 
-    const friendsRef = collection(db, "users", auth.currentUser.uid, "friends");
-
-    const q = query(friendsRef, orderBy("name"));
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      const list = snapshot.docs.map((doc) => doc.data().name);
-      setFriends(list);
-    });
-
-    return () => unsub();
-  }, []);
+    if (selectedUser === friends.find(f => f.id === friendId)?.name) {
+      setSelectedUser("");
+    }
+  };
 
   return (
     <aside className="hidden md:flex w-60 bg-[#1e1f22]/30 flex-col">
@@ -84,19 +106,31 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
 
       <div className="p-3 flex flex-col gap-1">
         {friends.map((friend) => {
-          const isSelected = friend === selectedUser;
+          const isSelected = friend.name === selectedUser;
 
           return (
             <div
-              key={friend}
-              onClick={() => setSelectedUser(friend)}
-              className={`flex items-center gap-3 px-3 py-2 rounded cursor-pointer
-        ${isSelected ? "bg-[#404249]" : "hover:bg-[#313338]"}`}
+              key={friend.id}
+              className={`flex items-center justify-between px-3 py-2 rounded cursor-pointer
+              ${isSelected ? "bg-[#404249]" : "hover:bg-[#313338]"}`}
+              onClick={() => setSelectedUser(friend.name)}
             >
-              <div className="bg-amber-200 rounded-full text-black w-7 h-7 flex items-center justify-center">
-                {friend.charAt(0)}
+              <div className="flex gap-2 items-center">
+                <div className="bg-amber-200 rounded-full text-black w-7 h-7 flex items-center justify-center">
+                  {friend.name.charAt(0).toUpperCase()}
+                </div>
+                <span>{friend.name}</span>
               </div>
-              <span className="truncate">{friend}</span>
+
+              <img
+                src={BinImg}
+                alt="delete"
+                className="h-5 cursor-pointer hover:opacity-70"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteFriend(friend.id);
+                }}
+              />
             </div>
           );
         })}
@@ -105,9 +139,7 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-[#313338] rounded-lg w-96 p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              {editingFriend ? "Rename Friend" : "Add Friend"}
-            </h2>
+            <h2 className="text-lg font-semibold mb-4">Add Friend</h2>
 
             <input
               autoFocus
@@ -128,7 +160,7 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
                 onClick={handleAddFriend}
                 className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500"
               >
-                {editingFriend ? "Save" : "Add"}
+                Add
               </button>
             </div>
           </div>
