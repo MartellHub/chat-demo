@@ -13,9 +13,6 @@ function Header() {
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
   };
-  const openSingUpModal = () => {
-    setIsSignUpModalOpen(true);
-  };
 
   const closeAllModals = () => {
     setIsLoginModalOpen(false);

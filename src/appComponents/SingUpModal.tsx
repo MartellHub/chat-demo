@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
+import { auth , db } from '../../firebase/firebase';
+import { doc , setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
 type SignUpModalProps = {
@@ -43,6 +44,18 @@ export default function SignUpModal({
 
       await updateProfile(userCredential.user, {
         displayName: username,
+      });
+
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        uid: userCredential.user.uid,
+        displayName: username,
+        email: email,
+        createdAt: new Date(),
+      });
+
+      await setDoc(doc(db, 'userChats', userCredential.user.uid), {
+        chats : [], 
       });
 
       setSuccess('Account created successfully!'); // ✅ set success message
