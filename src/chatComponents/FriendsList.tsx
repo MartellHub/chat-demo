@@ -4,34 +4,51 @@ import BinImg from "../img/bin.png";
 
 import {
   collection,
-  addDoc,
+  setDoc,
   onSnapshot,
   query,
   orderBy,
   serverTimestamp,
   deleteDoc,
   doc,
+  getDocs,
+  where,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebase";
 
+/* ================= TYPES ================= */
+
 type UserProps = {
-  selectedUser: string;
-  setSelectedUser: (user: string) => void;
+  selectedUserId: string;
+  setSelectedUserId: (id: string) => void;
 };
 
 type Friend = {
-  id: string;
-  name: string;
+  id: string;   // friend UID
+  name: string; // display name
 };
 
-function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
+type FoundUser = {
+  uid: string;
+  username: string;
+};
+
+/* ================= COMPONENT ================= */
+
+function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [newFriend, setNewFriend] = useState("");
 
-  /* 🔥 AUTH + FIRESTORE LISTENER */
+  /* ================= AUTH + FRIENDS LISTENER ================= */
+
   useEffect(() => {
+    let unsubFriends: (() => void) | null = null;
+
     const unsubAuth = auth.onAuthStateChanged((user) => {
+      // Cleanup previous listener
+      unsubFriends?.();
+
       if (!user) {
         setFriends([]);
         return;
@@ -40,19 +57,41 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
       const friendsRef = collection(db, "users", user.uid, "friends");
       const q = query(friendsRef, orderBy("name"));
 
-      const unsubFriends = onSnapshot(q, (snapshot) => {
-        const list = snapshot.docs.map((d) => ({
-          id: d.id,
-          name: d.data().name,
-        }));
-        setFriends(list);
+      unsubFriends = onSnapshot(q, (snapshot) => {
+        setFriends(
+          snapshot.docs.map((d) => ({
+            id: d.id,
+            name: d.data().name,
+          }))
+        );
       });
-
-      return () => unsubFriends();
     });
 
-    return () => unsubAuth();
+    return () => {
+      unsubFriends?.();
+      unsubAuth();
+    };
   }, []);
+
+  /* ================= HELPERS ================= */
+
+  const findUserByName = async (name: string): Promise<FoundUser | null> => {
+    const q = query(
+      collection(db, "users"),
+      where("username_lower", "==", name.toLowerCase())
+    );
+
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+
+    const d = snap.docs[0];
+    return {
+      uid: d.id,
+      username: d.data().username,
+    };
+  };
+
+  /* ================= ACTIONS ================= */
 
   const openAddModal = () => {
     setNewFriend("");
@@ -60,22 +99,39 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
   };
 
   const handleAddFriend = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
 
     const name = newFriend.trim();
     if (!name) return;
 
-    if (friends.some((f) => f.name.toLowerCase() === name.toLowerCase())) {
+    const foundUser = await findUserByName(name);
+
+    if (!foundUser) {
+      alert("User does not exist");
       return;
     }
 
-    await addDoc(collection(db, "users", user.uid, "friends"), {
-      name,
-      createdAt: serverTimestamp(),
-    });
+    if (foundUser.uid === currentUser.uid) {
+      alert("You cannot add yourself");
+      return;
+    }
 
-    setSelectedUser(name);
+    if (friends.some((f) => f.id === foundUser.uid)) {
+      alert("User already added");
+      return;
+    }
+
+    // Add friend (one-sided, safe)
+    await setDoc(
+      doc(db, "users", currentUser.uid, "friends", foundUser.uid),
+      {
+        name: foundUser.username,
+        createdAt: serverTimestamp(),
+      }
+    );
+
+    setSelectedUserId(foundUser.uid);
     setIsModalOpen(false);
   };
 
@@ -83,17 +139,18 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
     const user = auth.currentUser;
     if (!user) return;
 
-    await deleteDoc(
-      doc(db, "users", user.uid, "friends", friendId)
-    );
+    await deleteDoc(doc(db, "users", user.uid, "friends", friendId));
 
-    if (selectedUser === friends.find(f => f.id === friendId)?.name) {
-      setSelectedUser("");
+    if (selectedUserId === friendId) {
+      setSelectedUserId("");
     }
   };
 
+  /* ================= UI ================= */
+
   return (
     <aside className="hidden md:flex w-60 bg-[#1e1f22]/30 flex-col">
+      {/* Header */}
       <div className="flex h-14 p-4 font-bold border-b border-black/30 items-center justify-between">
         <div>Friends</div>
         <img
@@ -104,16 +161,17 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
         />
       </div>
 
+      {/* Friends List */}
       <div className="p-3 flex flex-col gap-1">
         {friends.map((friend) => {
-          const isSelected = friend.name === selectedUser;
+          const isSelected = friend.id === selectedUserId;
 
           return (
             <div
               key={friend.id}
               className={`flex items-center justify-between px-3 py-2 rounded cursor-pointer
               ${isSelected ? "bg-[#404249]" : "hover:bg-[#313338]"}`}
-              onClick={() => setSelectedUser(friend.name)}
+              onClick={() => setSelectedUserId(friend.id)}
             >
               <div className="flex gap-2 items-center">
                 <div className="bg-amber-200 rounded-full text-black w-7 h-7 flex items-center justify-center">
@@ -136,6 +194,7 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
         })}
       </div>
 
+      {/* Add Friend Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-[#313338] rounded-lg w-96 p-6">
@@ -145,8 +204,9 @@ function FriendsList({ selectedUser, setSelectedUser }: UserProps) {
               autoFocus
               value={newFriend}
               onChange={(e) => setNewFriend(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddFriend()}
               className="w-full px-3 py-2 rounded bg-[#1e1f22] text-white outline-none"
-              placeholder="Friend name"
+              placeholder="Username"
             />
 
             <div className="flex justify-end gap-3 mt-6">
