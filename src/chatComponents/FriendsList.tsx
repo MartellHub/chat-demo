@@ -149,7 +149,7 @@ function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
   /* ================= UI ================= */
 
   return (
-    <aside className="hidden md:flex w-60 bg-[#1e1f22]/30 flex-col">
+    <aside className="hidden md:flex w-60 bg-[#1e1f22]/30 flex-col h-full">
       {/* Header */}
       <div className="flex h-14 p-4 font-bold border-b border-black/30 items-center justify-between">
         <div>Friends</div>
