@@ -42,109 +42,16 @@ function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
 
   /* ================= AUTH + FRIENDS LISTENER ================= */
 
-  useEffect(() => {
-    let unsubFriends: (() => void) | null = null;
-
-    const unsubAuth = auth.onAuthStateChanged((user) => {
-      // Cleanup previous listener
-      unsubFriends?.();
-
-      if (!user) {
-        setFriends([]);
-        return;
-      }
-
-      const friendsRef = collection(db, "users", user.uid, "friends");
-      const q = query(friendsRef, orderBy("name"));
-
-      unsubFriends = onSnapshot(q, (snapshot) => {
-        setFriends(
-          snapshot.docs.map((d) => ({
-            id: d.id,
-            name: d.data().name,
-          }))
-        );
-      });
-    });
-
-    return () => {
-      unsubFriends?.();
-      unsubAuth();
-    };
-  }, []);
 
   /* ================= HELPERS ================= */
 
-  const findUserByName = async (name: string): Promise<FoundUser | null> => {
-    const q = query(
-      collection(db, "users"),
-      where("username_lower", "==", name.toLowerCase())
-    );
-
-    const snap = await getDocs(q);
-    if (snap.empty) return null;
-
-    const d = snap.docs[0];
-    return {
-      uid: d.id,
-      username: d.data().username,
-    };
-  };
 
   /* ================= ACTIONS ================= */
+  const openAddModal = () => {}
 
-  const openAddModal = () => {
-    setNewFriend("");
-    setIsModalOpen(true);
-  };
+  const handleAddFriend = async () => {}
 
-  const handleAddFriend = async () => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-
-    const name = newFriend.trim();
-    if (!name) return;
-
-    const foundUser = await findUserByName(name);
-
-    if (!foundUser) {
-      alert("User does not exist");
-      return;
-    }
-
-    if (foundUser.uid === currentUser.uid) {
-      alert("You cannot add yourself");
-      return;
-    }
-
-    if (friends.some((f) => f.id === foundUser.uid)) {
-      alert("User already added");
-      return;
-    }
-
-    // Add friend (one-sided, safe)
-    await setDoc(
-      doc(db, "users", currentUser.uid, "friends", foundUser.uid),
-      {
-        name: foundUser.username,
-        createdAt: serverTimestamp(),
-      }
-    );
-
-    setSelectedUserId(foundUser.uid);
-    setIsModalOpen(false);
-  };
-
-  const handleDeleteFriend = async (friendId: string) => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    await deleteDoc(doc(db, "users", user.uid, "friends", friendId));
-
-    if (selectedUserId === friendId) {
-      setSelectedUserId("");
-    }
-  };
+  const handleDeleteFriend = async (friendId: string) => {}
 
   /* ================= UI ================= */
 

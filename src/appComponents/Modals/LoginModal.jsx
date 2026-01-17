@@ -1,15 +1,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
-import { signInWithGoogle } from '../../firebase/GoogleAuth';
+import { auth } from '../../../firebase/firebase';
+import { signInWithGoogle } from '../../../firebase/GoogleAuth';
 
 import SignUpModal from './SingUpModal';
 
 // icons
-import GoogleIcon from '../img/google-login-icon.png';
-import FacebookIcon from '../img/facebook-login-icon.png';
-import DiscordIcon from '../img/discord-login-icon.png';
+import GoogleIcon from '../../img/google-login-icon.png';
+import FacebookIcon from '../../img/facebook-login-icon.png';
+import DiscordIcon from '../../img/discord-login-icon.png';
 
 export default function LoginModal({ isOpen, onClose, onOpenSignup }) {
   const [email, setEmail] = useState('');

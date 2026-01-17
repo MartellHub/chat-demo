@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import UserImg from '../img/user-img.png';
 
-import LoginModal from './LoginModal';
-import SignUpModal from './SingUpModal';
+import LoginModal from './Modals/LoginModal';
+import SignUpModal from './Modals/SingUpModal';
 
 function Header() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
