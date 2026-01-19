@@ -1,1 +1,15 @@
 chat {id , chat name , user , time stamps , msg }
+
+{/* Helper Function For Finding All Users In DataBase */}
+const logDB = async () => {
+const snap = await getDocs(collection(db, "users"));
+snap.forEach((doc) => {
+console.log(doc.data().displayName);
+});
+};
+
+{/* Helper button */}
+<button className=" hover:cursor-pointer" onClick={logDB}>
+DB
+</button>
+{/* End Helper Button */}

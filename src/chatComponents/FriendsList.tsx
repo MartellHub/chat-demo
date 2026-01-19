@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import AddFriend from "../img/add-friend.png";
 import BinImg from "../img/bin.png";
+import { onAuthStateChanged } from "firebase/auth";
 
 import {
   collection,
@@ -24,8 +25,8 @@ type UserProps = {
 };
 
 type Friend = {
-  id: string;   // friend UID
-  name: string; // display name
+  id: string;
+  name: string;
 };
 
 type FoundUser = {
@@ -38,21 +39,92 @@ type FoundUser = {
 function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [newFriend, setNewFriend] = useState("");
-
+  const [newFriend, setNewFriend] = useState("");   
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  
   /* ================= AUTH + FRIENDS LISTENER ================= */
 
+  useEffect(() => {
+  const unsub = onAuthStateChanged(auth, (user) => {
+    setCurrentUser(user);
+  });
+
+  return () => unsub();
+}, []);
 
   /* ================= HELPERS ================= */
 
+  const findUserByUsername = async (
+    username: string
+  ): Promise<FoundUser | null> => {
+    const q = query(
+      collection(db, "users"),
+      where("displayName", "==", username)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return null;
+
+    const docSnap = snapshot.docs[0];
+
+    return {
+      uid: docSnap.id,
+      username: docSnap.data().displayName,
+    };
+  };
 
   /* ================= ACTIONS ================= */
-  const openAddModal = () => {}
 
-  const handleAddFriend = async () => {}
+  const openAddModal = () => {
+    setNewFriend("");
+    setIsModalOpen(true);
+  };
 
-  const handleDeleteFriend = async (friendId: string) => {}
+  const handleAddFriend = async () => {
+    if (!currentUser) return;
+    if (!newFriend.trim()) return;
 
+    const foundUser = await findUserByUsername(newFriend.trim());
+
+    if (!foundUser) {
+      alert("User not found");
+      return;
+    }
+
+    if (foundUser.uid === currentUser.uid) {
+      alert("You can't add yourself");
+      return;
+    }
+
+    const friendRef = doc(
+      db,
+      "users",
+      currentUser.uid,
+      "friends",
+      foundUser.uid
+    );
+
+    await setDoc(friendRef, {
+      name: foundUser.username,
+      createdAt: serverTimestamp(),
+    });
+
+    setIsModalOpen(false);
+    setNewFriend("");
+  };
+
+  const handleDeleteFriend = async (friendId: string) => {
+    if (!currentUser) return;
+
+    await deleteDoc(doc(db, "users", currentUser.uid, "friends", friendId));
+
+    if (selectedUserId === friendId) {
+      setSelectedUserId("");
+    }
+  };
+ console.log(friends)
+   
   /* ================= UI ================= */
 
   return (
@@ -60,6 +132,9 @@ function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
       {/* Header */}
       <div className="flex h-14 p-4 font-bold border-b border-black/30 items-center justify-between">
         <div>Friends</div>
+        <button
+        // onClick={fetchFriends}
+        >DB</button>
         <img
           src={AddFriend}
           alt="addFriend"
@@ -72,7 +147,6 @@ function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
       <div className="p-3 flex flex-col gap-1">
         {friends.map((friend) => {
           const isSelected = friend.id === selectedUserId;
-
           return (
             <div
               key={friend.id}

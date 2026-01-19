@@ -1,6 +1,7 @@
 import { useAuth } from '../../../firebase/AuthContext';
 import { usePresence } from '../../../firebase/usePresence';
 import { useState } from 'react';
+import Avatar from '../../img/user-img.png'
 
 import UserLogOutModal from './UserLogOutModal';
 import CameraModal from './CameraModal';
@@ -16,17 +17,20 @@ function UserWindow() {
   const onCloseAreYouSureModal = () => {
     setAreYouSureModalOpen(false);
   };
+
   return (
     <div>
       <div className='flex w-full justify-between p-2 items-center '>
         <div className='flex gap-2 items-center'>
           <img
-            src={user?.photoURL ?? '/avatar.png'}
+            src={user?.photoURL ?? Avatar}
             alt='avatar'
             className='w-8 h-8 rounded-full'
           />
-          <div className='flex flex-col'>
-            <span className='text-sm'>{user?.displayName ?? 'Guest'}</span>
+          <div className='flex flex-col '>
+            <span className='text-sm'
+              // onClick={logUserInfo}
+            >{user?.displayName ?? 'Guest'}</span>
             <span className={`${status === 'online' ? 'text-green-400' : 'text-red-400'} text-xs`}>{status}</span>
           </div>
         </div>
@@ -42,7 +46,7 @@ function UserWindow() {
 
           {isMenuOpen && (
             <div
-              className='absolute bottom-10 right-0 w-40 bg-[#1e1f22] rounded-md shadow-lg border border-black/40 z-50'
+              className='absolute top-10 right-0 w-40 bg-[#1e1f22] rounded-md shadow-lg border border-black/40 z-50'
               onClick={(e) => e.stopPropagation()}
             >
               <button

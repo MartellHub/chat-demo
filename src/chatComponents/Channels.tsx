@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 import addGroupImg from '../img/add-group.png';
 import AddRoomModal from './Modals/AddRoomModal';
-import UserWindow from './user/UserWindow';
 
 type ChannelsProps = {
   selectedChannel: string;
@@ -11,13 +10,7 @@ type ChannelsProps = {
 };
 
 function Channels({ selectedChannel, setSelectedChannel }: ChannelsProps) {
-  const [groups, setGroups] = useState<string[]>([
-    'general',
-    'random',
-    'help',
-    'announcements',
-  ]);
-
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newGroup, setNewGroup] = useState('');
   const [editingGroup, setEditingGroup] = useState<string | null>(null);
@@ -105,33 +98,7 @@ function Channels({ selectedChannel, setSelectedChannel }: ChannelsProps) {
 
       {/* Channels */}
       <div className='flex flex-1 flex-col'>
-        {groups.map((channel, index) => (
-          <div
-            key={channel}
-            draggable
-            onDragStart={() => handleDragStart(index)}
-            onDragOver={handleDragOver}
-            onDrop={() => handleDrop(index)}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              openEditModal(channel);
-            }}
-            className={`mx-2 rounded cursor-move
-            ${
-              selectedChannel === channel
-                ? 'bg-[#3f4147]'
-                : 'hover:bg-[#3f4147]'
-            }`}
-          >
-            <button
-              draggable={false}
-              onClick={() => setSelectedChannel(channel)}
-              className='w-full text-left px-4 py-2 cursor-pointer'
-            >
-              # {channel}
-            </button>
-          </div>
-        ))}
+        
       </div>
 
       {/* Modal */}
