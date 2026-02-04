@@ -20,7 +20,7 @@ function UserWindow() {
 
   return (
     <div>
-      <div className='flex w-full justify-between p-2 items-center '>
+      <div className='flex justify-between p-2 items-center w-60'>
         <div className='flex gap-2 items-center'>
           <img
             src={user?.photoURL ?? Avatar}

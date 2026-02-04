@@ -84,7 +84,7 @@ function Channels({ selectedChannel, setSelectedChannel }: ChannelsProps) {
   
 
   return (
-    <aside className='hidden sm:flex w-60 bg-[#2b2d31] flex-col h-full border-t'>
+    <aside className='hidden sm:flex w-60 bg-[#2b2d31] flex-col h-full'>
       {/* Header */}
       <div className='flex h-16 p-4 font-bold border-b border-black/30 items-center justify-between'>
         <div>Server Name</div>
