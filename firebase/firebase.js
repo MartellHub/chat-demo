@@ -6,7 +6,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_API_KEY,
+  apiKey: "AIzaSyDi3gk1XP3js7MFuW2gzrxwA1zhcet6k9Q",
   authDomain: "chat-app-ca54c.firebaseapp.com",
   projectId: "chat-app-ca54c",
   storageBucket: "chat-app-ca54c.firebasestorage.app",

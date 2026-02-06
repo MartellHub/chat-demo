@@ -41,6 +41,7 @@ function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [newFriend, setNewFriend] = useState("");   
   const [currentUser, setCurrentUser] = useState<any>(null);
+
   
   /* ================= AUTH + FRIENDS LISTENER ================= */
 
@@ -123,7 +124,7 @@ function FriendsList({ selectedUserId, setSelectedUserId }: UserProps) {
       setSelectedUserId("");
     }
   };
- console.log(friends)
+ 
    
   /* ================= UI ================= */
 
